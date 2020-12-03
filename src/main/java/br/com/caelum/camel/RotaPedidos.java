@@ -17,6 +17,10 @@ public class RotaPedidos {
 			@Override
 			public void configure() throws Exception {
 				from("file:pedidos?delay=5s&noop=true")
+				
+					.split().xpath("/pedido/itens/item")
+					.log("${id}")
+					.filter().xpath("/item/formato[text()='EBOOK']")
 				.log("${id}")
 				.marshal().xmljson()
 				.log("${body}")
@@ -26,7 +30,7 @@ public class RotaPedidos {
 		});
 		
 		context.start();
-		Thread.sleep(20000);
+		Thread.sleep(2000);
 		context.stop();
 		
 		
