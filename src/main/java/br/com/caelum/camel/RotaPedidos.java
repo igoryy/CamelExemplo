@@ -12,28 +12,28 @@ public class RotaPedidos {
 	public static void main(String[] args) throws Exception {
 
 		CamelContext context = new DefaultCamelContext();
-		
-		
+
 		context.addRoutes(new RouteBuilder() {
-			
+
 			@Override
 			public void configure() throws Exception {
 				from("file:pedidos?delay=5s&noop=true")
-				
-					.split().xpath("/pedido/itens/item")
-					.log("${id}")
-					.filter().xpath("/item/formato[text()='EBOOK']")
-				.log("${id}")
-				.marshal().xmljson()
-				.setHeader(Exchange.HTTP_METHOD, HttpMethods.GET)
-				.to("http4://localhost:8080/webservices/ebook/item");
+					.setProperty("pedidoId", xpath("/pedido/id/text()"))
+					.setProperty("clienteId", xpath("/pedido/pagamento/email-titular/text()")).split()
+						
+					.xpath("/pedido/itens/item").log("${id}")
+					.setProperty("ebookId", xpath("/item/livro/codigo/text()")).filter()
+						.xpath("/item/formato[text()='EBOOK']").log("${id}").marshal().xmljson()
+						.setHeader(Exchange.HTTP_METHOD, HttpMethods.GET)
+						.setHeader(Exchange.HTTP_QUERY, simple(
+								"ebookId=${property.ebookId}&pedidoId=${property.pedidoId}&clienteId=${property.clienteId}"))
+						.to("http4://localhost:8080/webservices/ebook/item");
 			}
 		});
-		
+
 		context.start();
 		Thread.sleep(2000);
 		context.stop();
-		
-		
-	}	
+
+	}
 }
