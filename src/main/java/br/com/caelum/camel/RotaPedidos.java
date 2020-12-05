@@ -9,9 +9,8 @@ import org.apache.camel.impl.DefaultCamelContext;
 public class RotaPedidos {
 
 	public static void main(String[] args) throws Exception {
-
+		
 		CamelContext context = new DefaultCamelContext();
-
 		context.addRoutes(new RouteBuilder() {
 
 			@Override
@@ -50,4 +49,6 @@ public class RotaPedidos {
 		context.stop();
 
 	}
+	
+
 }
